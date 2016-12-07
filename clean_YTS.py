@@ -27,7 +27,7 @@ def clean_YTS_dataset(input_file, output_file):
     print('** Shape of the clean dataset ', dfMAIN.shape)
 
     # Write to CSV file with the name of 'output_file'. Index is set to False as we do not want the Pandas Index in our output file
-    dfMAIN.to_csv(output_file, index=False)
+    dfMAIN.to_csv(output_file, index=False, encoding='utf-8')
     
     print("Output file is %s" %output_file)
 
