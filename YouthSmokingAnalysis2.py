@@ -14,6 +14,10 @@ class YouthSmokingAnalysis2:
         pass
     def analyzeNonCessation(self):
         pass
+    def analyzeBeforeAndAfterCampaign(self):
+        pass
+   def analyzeBeforeAndAfterTax(self):
+        pass
     def plotResult(self):
         pass
 
