@@ -10,6 +10,10 @@ class YouthSmokingAnalysis2:
    
     def analyze(self):
         pass
+    def analyzeCessation(self):
+        pass
+    def analyzeNonCessation(self):
+        pass
     def plotResult(self):
         pass
 

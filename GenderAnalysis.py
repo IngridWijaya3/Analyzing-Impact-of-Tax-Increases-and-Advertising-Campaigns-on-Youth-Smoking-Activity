@@ -14,9 +14,13 @@ class GenderAnalysis(YouthSmokingAnalysis2):
                                              & (self.ytsDataFrame.MeasureDesc=='Smoking Status') & (self.ytsDataFrame.Response=='Ever')]
         yearandGenderGroup["NumberOfPeople"]=(yearandGenderGroup.Data_Value*yearandGenderGroup.Sample_Size)/100
         print(yearandGenderGroup[['YEAR','Gender','Data_Value','Sample_Size','NumberOfPeople']])
-        numberOfPeopleSmoking=yearandGenderGroup.groupby(['YEAR','Gender'])['NumberOfPeople'].sum()
-        numberOfPeopleSmoking.plot()
-        print(yearandGenderGroup.groupby(['YEAR','Gender'])['NumberOfPeople'].sum())
+        numberOfPeopleSmoking=yearandGenderGroup.groupby(['YEAR','Gender'], as_index=False)['NumberOfPeople'].sum()
+        pivotTable=pandas.pivot_table(numberOfPeopleSmoking, index=['YEAR'], columns=['Gender'] , values='NumberOfPeople')
+
+
+        print(numberOfPeopleSmoking)
+        print(pivotTable)
 
 a=GenderAnalysis()
+a.analyze()
 
