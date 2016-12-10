@@ -3,12 +3,12 @@ import pandas
 import numpy
 import matplotlib 
 import datetime
-from YouthSmokingAnalysis2 import YouthSmokingAnalysis2
+from YouthSmokingAnalysis import YouthSmokingAnalysis
 
-class EducationAnalysis(YouthSmokingAnalysis2):
+class EducationAnalysis(YouthSmokingAnalysis):
     
     def __init__(self):
-        YouthSmokingAnalysis2.__init__(self)
+        YouthSmokingAnalysis.__init__(self)
     def analyze(self):
         #'Middle School' 'High School'
         yearandEducationGroup=self.ytsDataFrame[(self.ytsDataFrame.Gender=='Overall')
@@ -18,8 +18,18 @@ class EducationAnalysis(YouthSmokingAnalysis2):
         yearandEducationGroup["NumberOfPeople"]=(yearandEducationGroup.Data_Value*yearandEducationGroup.Sample_Size)/100
         print(yearandEducationGroup[['YEAR','Education','Data_Value','Sample_Size','NumberOfPeople']])
         numberOfPeopleSmoking=yearandEducationGroup.groupby(['YEAR','Education'])['NumberOfPeople'].sum()
-        numberOfPeopleSmoking.plot()
         print(yearandEducationGroup.groupby(['YEAR','Education'])['NumberOfPeople'].sum())
-
+        return numberOfPeopleSmoking
+    def analyzeCessation(self):
+        print("add codes here")
+    def analyzeNonCessation(self):
+        print("add codes here")
+    def analyzeBeforeAndAfterCampaign(self):
+        print("add codes here")
+    def analyzeBeforeAndAfterTax(self):
+        print("add codes here")
+    def plotResult(self):
+        print("add codes here")
+        
 a=EducationAnalysis()
 a.analyze()

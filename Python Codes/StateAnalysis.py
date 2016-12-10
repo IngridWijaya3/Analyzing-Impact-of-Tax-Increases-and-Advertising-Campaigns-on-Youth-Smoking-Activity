@@ -3,11 +3,12 @@ import pandas
 import numpy
 import matplotlib 
 import datetime
-from YouthSmokingAnalysis2 import YouthSmokingAnalysis2
-class StateAnalysis(YouthSmokingAnalysis2):
+from YouthSmokingAnalysis import YouthSmokingAnalysis
+
+class StateAnalysis(YouthSmokingAnalysis):
     
     def __init__(self):
-        YouthSmokingAnalysis2.__init__(self)
+        YouthSmokingAnalysis.__init__(self)
     def analyze(self):
         yearandStateGroup=self.ytsDataFrame[(self.ytsDataFrame.Gender=='Overall')
                                              & (self.ytsDataFrame.TopicDesc=='Cigarette Use (Youth)' )
@@ -21,6 +22,17 @@ class StateAnalysis(YouthSmokingAnalysis2):
 
         print(numberOfPeopleSmoking)
         print(pivotTable)
+        return numberOfPeopleSmoking
+    def analyzeCessation(self):
+        print("add codes here")
+    def analyzeNonCessation(self):
+        print("add codes here")
+    def analyzeBeforeAndAfterCampaign(self):
+        print("add codes here")
+    def analyzeBeforeAndAfterTax(self):
+        print("add codes here")
+    def plotResult(self):
+        print("add codes here")
 
 a=StateAnalysis()
 a.analyze()
