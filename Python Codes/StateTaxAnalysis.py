@@ -309,6 +309,7 @@ class StateAnalysis(YouthSmokingAnalysis):
         :return: no return value
         """
         plt.figure()
+        plt.style.use('fivethirtyeight')
         plt.plot(dataset.get_xvalues(), dataset.get_yvalues(), linestyle='-', marker='.', color='b')
         plt.xlabel(dataset.get_xlabel())
         plt.ylabel(dataset.get_ylabel())
@@ -362,6 +363,7 @@ class StateAnalysis(YouthSmokingAnalysis):
         # fig, ax1 = plt.subplots()
 
         plt.figure()
+        plt.style.use('fivethirtyeight')
         plt.plot(x1_values, y1_values, linestyle='-', marker='.', color='b')
         plt.plot(x2_values, y2_values, linestyle='-', marker='.', color='g')
         plt.xlabel(set1['xlabel'])
