@@ -76,6 +76,10 @@ class StateAnalysis(YouthSmokingAnalysis):
         print(self.stateSmokelessTobaccoUseResult)
         print(self.stateCessationTobaccoUseResult)
 
+    def plotBeforeAndAfterCampaign(self):
+        self.stateCigaretteUseResult.plot(figsize=(20,20),
+                                   style = '--o',
+                                   title = "Cigarette Use by State ")
 
         
     def analyzeBeforeAndAfterTax(self):
@@ -85,4 +89,5 @@ class StateAnalysis(YouthSmokingAnalysis):
 
 a=StateAnalysis()
 a.analyzeBeforeAndAfterCampaign()
+a.plotBeforeAndAfterCampaign()
 
