@@ -80,6 +80,7 @@ class StateAnalysis(YouthSmokingAnalysis):
         self.stateCigaretteUseResult.plot(figsize=(20,20),
                                    style = '--o',
                                    title = "Cigarette Use by State ")
+        pandas.DataFrame.hist(self.stateCigaretteUseResult)
 
         
     def analyzeBeforeAndAfterTax(self):

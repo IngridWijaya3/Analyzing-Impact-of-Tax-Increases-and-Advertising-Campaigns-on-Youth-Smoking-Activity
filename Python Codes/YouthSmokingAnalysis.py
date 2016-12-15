@@ -6,6 +6,8 @@ import datetime
 class YouthSmokingAnalysis:
     csvFileName="YTS_Clean.csv"
     taxRateCsvFileName="tax_data_all.csv"
+    outputCSVFolderName= "AnalysisCSV"
+    outputPlotFolderName="Plots"
     def __init__(self):
         self.ytsDataFrame= pandas.read_csv("YTS_Clean.csv")
         self.taxRateDataFrame= pandas.read_csv("tax_data_all.csv")
