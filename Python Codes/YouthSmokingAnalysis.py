@@ -4,7 +4,7 @@ import matplotlib
 import datetime
 
 class YouthSmokingAnalysis:
-    ytsCsvFileName="YTS_Clean2.csv"
+    ytsCsvFileName="YTS_Clean.csv"
     taxRateCsvFileName="tax_data_all_cleaned.csv"
     outputCSVFolderName= "AnalysisCSV"
     outputPlotFolderName="Plots"

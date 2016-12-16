@@ -13,7 +13,7 @@ class StateCampaignAnalysis(YouthSmokingAnalysis):
     def analyze(self):
         self.analyzeCigaretteUse()
         self.analyzeCessation()
-        self.analyzeBeforeAndAfterTax()
+        self.analyzeBeforeAndAfterCampaign()
         
     def analyzeCessation(self):
         self.stateAndCessation=self.ytsDataFrame[(self.ytsDataFrame.Gender=='Overall')
@@ -92,6 +92,5 @@ class StateCampaignAnalysis(YouthSmokingAnalysis):
         
 
 
-a=StateCampaignAnalysis()
-a.analyze()
+
 
