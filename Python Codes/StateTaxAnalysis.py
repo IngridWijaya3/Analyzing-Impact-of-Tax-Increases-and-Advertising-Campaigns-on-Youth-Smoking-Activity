@@ -2,6 +2,7 @@ import math
 import pandas as pd
 import operator
 import matplotlib.pyplot as plt
+import os
 import taxes
 from YouthSmokingAnalysis import YouthSmokingAnalysis
 
@@ -72,6 +73,13 @@ class StateAnalysis(YouthSmokingAnalysis):
         df2 = df1[df1['LocationDesc'] == state]
         return df2
 
+    def tuple_list_to_csv(self, tuple_list, column_list, filename):
+        csv_dir = ".\\AnalysisCSV"
+        with open(os.path.join(csv_dir, filename), "w") as outfile:
+            outfile.write("YEAR,% CURRENT SMOKERS WHO WANT TO QUIT\n")
+            for x, y in tuple_list:
+                outfile.write("{},{}\n".format(x, y))
+
     def df_to_tuple_list(self, df, sort_key_num=0):
         """
         this method takes a dataframe as input and returns a sorted list of tuples
@@ -121,6 +129,8 @@ class StateAnalysis(YouthSmokingAnalysis):
 
         # order cessation rates by year and then place into list of tuples
         ordered_rates_high = self.df_to_tuple_list(rates_high_taxes, 0)
+        self.tuple_list_to_csv(ordered_rates_high, column_list=["YEAR", "PERCENT CURRENT SMOKERS WHO WANT TO QUIT"],
+                               filename="cessation_rates_high_tax_states.csv")
 
         # convert tuples into list of x-values and y-values for plotting
         x1_values = []
@@ -131,6 +141,8 @@ class StateAnalysis(YouthSmokingAnalysis):
 
         # order smoking rates by year and then place into list of tuples
         ordered_rates_low = self.df_to_tuple_list(rates_low_taxes, 0)
+        self.tuple_list_to_csv(ordered_rates_low, column_list=["YEAR", "PERCENT CURRENT SMOKERS WHO WANT TO QUIT"],
+                               filename="cessation_rates_low_tax_states.csv")
 
         # convert tuples into list of x-values and y-values for plotting
         x2_values = []
@@ -194,6 +206,8 @@ class StateAnalysis(YouthSmokingAnalysis):
 
         # order smoking rates by year and then place into list of tuples
         ordered_rates_high = self.df_to_tuple_list(rates_high_taxes, 0)
+        self.tuple_list_to_csv(ordered_rates_high, column_list=["YEAR", "PERCENT RESPONDING AS CURRENT SMOKERS"],
+                               filename="cigarette_use_rates_high_tax_states.csv")
 
         # convert tuples into list of x-values and y-values for plotting
         x1_values = []
@@ -204,6 +218,8 @@ class StateAnalysis(YouthSmokingAnalysis):
 
         # order smoking rates by year and then place into list of tuples
         ordered_rates_low = self.df_to_tuple_list(rates_low_taxes, 0)
+        self.tuple_list_to_csv(ordered_rates_low, column_list=["YEAR", "PERCENT RESPONDING AS CURRENT SMOKERS"],
+                               filename="cigarette_use_rates_low_tax_states.csv")
 
         # convert tuples into list of x-values and y-values for plotting
         x2_values = []
@@ -283,6 +299,9 @@ class StateAnalysis(YouthSmokingAnalysis):
                 increase_effect_data.append((max_increase, change))
         # sort increase effect data by size of tax increase - 1st element in tuple
         ordered_increases = sorted(increase_effect_data, key=lambda x: x[0])
+        self.tuple_list_to_csv(ordered_increases, column_list=["TAX INCREASE", "DROP IN CURRENT SMOKER RATE"],
+                               filename="current_smoker_rates_tax_increases.csv")
+
 
         # convert tuples into lists of x-values and y-values for plotting
         x1_values = []
@@ -309,6 +328,7 @@ class StateAnalysis(YouthSmokingAnalysis):
         :return: no return value
         """
         plt.figure()
+        plt.style.use('fivethirtyeight')
         plt.plot(dataset.get_xvalues(), dataset.get_yvalues(), linestyle='-', marker='.', color='b')
         plt.xlabel(dataset.get_xlabel())
         plt.ylabel(dataset.get_ylabel())
@@ -362,6 +382,7 @@ class StateAnalysis(YouthSmokingAnalysis):
         # fig, ax1 = plt.subplots()
 
         plt.figure()
+        plt.style.use('fivethirtyeight')
         plt.plot(x1_values, y1_values, linestyle='-', marker='.', color='b')
         plt.plot(x2_values, y2_values, linestyle='-', marker='.', color='g')
         plt.xlabel(set1['xlabel'])

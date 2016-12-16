@@ -370,7 +370,7 @@ Analysis = EducationAnalysis()
 
 response_values = ['Current', 'Ever', 'Frequent']
 gender_values = [True,False]
-cess_measures = ['Percent of Current Smokers Who Want to Quit', 'Percent of Current Smokers Who Want to Quit']
+cess_measures = ['Percent of Current Smokers Who Want to Quit', 'Quit Attempt in Past Year Among Current Cigarette Smokers']
 
 dataframes = {
     'CigUse' : [],
