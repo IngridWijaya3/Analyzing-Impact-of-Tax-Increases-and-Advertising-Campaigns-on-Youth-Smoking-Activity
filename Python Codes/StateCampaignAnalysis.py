@@ -1,7 +1,7 @@
 
 import pandas
 import numpy
-import matplotlib 
+import matplotlib.pyplot as plt
 import datetime
 from YouthSmokingAnalysis import YouthSmokingAnalysis
 
@@ -14,6 +14,7 @@ class StateCampaignAnalysis(YouthSmokingAnalysis):
         self.analyzeCigaretteUse()
         self.analyzeCessation()
         self.analyzeBeforeAndAfterCampaign()
+        self.plotBeforeAndAfterCampaign()
         
     def analyzeCessation(self):
         self.stateAndCessation=self.ytsDataFrame[(self.ytsDataFrame.Gender=='Overall')
@@ -87,7 +88,53 @@ class StateCampaignAnalysis(YouthSmokingAnalysis):
                                    style = '--o',
                                    title = "Cigarette Use by State ")
                                    '''
-        pandas.DataFrame.hist(self.stateCigaretteUseResult)
+
+        plt.style.use('fivethirtyeight')
+
+        #plt.draw_all()
+
+        #plt.savefig('test.png')
+
+        n_groups = len(self.stateCigaretteUseResult.index)
+
+        means_men = self.stateCigaretteUseResult["AverageBeforeCampaign"].values
+        means_women = self.stateCigaretteUseResult["AverageAfterCampaign"].values
+
+        fig, ax = plt.subplots()
+        fig.set_figheight(20)
+        fig.set_figwidth(30)
+        
+        index = numpy.arange(n_groups)
+        index = numpy.arange(0, n_groups * 2, 2)
+        bar_width = 0.35
+
+        opacity = 0.4
+        error_config = {'ecolor': '0.3'}
+
+        rects1 = plt.bar(index, means_men, bar_width,
+                     alpha=opacity,
+                     color='b',
+                     error_kw=error_config,
+                     label='Before Campaign')
+
+        rects2 = plt.bar(index + bar_width, means_women, bar_width,
+                     alpha=opacity,
+                     color='r',
+                     error_kw=error_config,
+                     label='After Campaign')
+
+        plt.xlabel('States')
+        plt.ylabel('Percent Average')
+        plt.title('Percent Average Cigarette Use Before And After Campaign')
+        plt.xticks(index + bar_width, self.stateCigaretteUseResult.index,fontsize=10)
+       
+        plt.legend()
+
+        #plt.show()
+        plt.savefig('test.png')
+
+a = StateCampaignAnalysis()
+a.analyze()
 
         
 
