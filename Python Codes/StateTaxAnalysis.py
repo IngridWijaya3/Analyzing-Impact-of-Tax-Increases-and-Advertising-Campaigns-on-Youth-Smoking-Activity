@@ -5,7 +5,11 @@ import matplotlib.pyplot as plt
 import os
 import taxes
 from YouthSmokingAnalysis import YouthSmokingAnalysis
-
+"""
+This program performs an analysis of the effect of tax increases smoking rates, cessation rates, and whether there is a
+correlation between the size of the tax increase and the amount smoking rates decrease.
+Author: Tony Santos, Group 4
+"""
 
 class DataSet:
     def __init__(self, x_values, y_values):
@@ -74,8 +78,8 @@ class StateAnalysis(YouthSmokingAnalysis):
         return df2
 
     def tuple_list_to_csv(self, tuple_list, column_list, filename):
-        csv_dir = ".\\AnalysisCSV"
-        with open(os.path.join(csv_dir, filename), "w") as outfile:
+        # outputPlotFolderName = "Plots"
+        with open(os.path.join(YouthSmokingAnalysis.outputCSVFolderName, filename), "w") as outfile:
             outfile.write("YEAR,% CURRENT SMOKERS WHO WANT TO QUIT\n")
             for x, y in tuple_list:
                 outfile.write("{},{}\n".format(x, y))
@@ -317,9 +321,9 @@ class StateAnalysis(YouthSmokingAnalysis):
         dataset.set_title('Change in smoking rates by tax increase')
         dataset.set_filename('cig_use_change_tax_increase.png')
         # plt.show()
-        self.plotResult(dataset)
+        self.plotResult(dataset, filename='cig_use_change_tax_increase.png')
 
-    def plotResult(self, dataset):
+    def plotResult(self, dataset, filename):
         """
         this methos overrides the method in the superclass
         it takes a dataset object as input and uses matplotlib to produce a graph. it is used top plot a single set
@@ -336,7 +340,8 @@ class StateAnalysis(YouthSmokingAnalysis):
 
         plt.draw_all()
 
-        plt.savefig('cig_use_change_tax_increase.png')
+        savepath = YouthSmokingAnalysis.outputPlotFolderName + "\\" + filename
+        plt.savefig(savepath)
 
     def calc_before_after_averages(self, df, state, year):
         # since we don't know when in the year the increase went into effect, ignore year of increase
@@ -391,7 +396,8 @@ class StateAnalysis(YouthSmokingAnalysis):
         plt.legend([set1['desc'], set2['desc']], loc=legend_loc)
 
         plt.draw_all()
-        plt.savefig(filename)
+        savepath = YouthSmokingAnalysis.outputPlotFolderName + "\\" + filename
+        plt.savefig(savepath)
         plt.clf()
 
         # plt.show()
