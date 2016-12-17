@@ -485,6 +485,6 @@ class EducationAnalysis(YouthSmokingAnalysis): # inherit from the superclass
                 
         return result
 
-a = EducationAnalysis()
-results = a.analyze()
+#a = EducationAnalysis()
+#results = a.analyze()
 #plt.show()
