@@ -13,7 +13,7 @@ class EducationAnalysis(YouthSmokingAnalysis): # inherit from the superclass
     def __init__(self):
         YouthSmokingAnalysis.__init__(self)
 
-    def analyze(self, response='Current', by_gender=False):
+    def analyzeCigUse(self, response='Current', by_gender=False):
         
         ### 
         ### Analyze cigarette use by education level. Can also return by education and gender if by_gender = True
@@ -53,7 +53,7 @@ class EducationAnalysis(YouthSmokingAnalysis): # inherit from the superclass
             self.dfMAIN = self.dfMAIN.fillna(self.dfMAIN[(self.dfMAIN.index == self.dfMAIN.index)].mean())
             
             # Write to CSV
-            self.outputFile = str('AnalysisCSV/CigUse_byEdu_%s.csv' % self.response)
+            self.outputFile = str(YouthSmokingAnalysis.outputCSVFolderName + '/CigUse_byEdu_%s.csv' % self.response)
             self.dfMAIN.to_csv(self.outputFile, encoding='utf-8')
             print('Dataframe written to CSV File : ' + self.outputFile)
 
@@ -83,7 +83,7 @@ class EducationAnalysis(YouthSmokingAnalysis): # inherit from the superclass
             self.dfMAIN = self.dfMAIN.fillna(self.dfMAIN[(self.dfMAIN.index == self.dfMAIN.index)].mean())
             
             # Write to CSV
-            self.outputFile = str('AnalysisCSV/CigUse_byEdu_byGen_%s.csv' % self.response)
+            self.outputFile = str(YouthSmokingAnalysis.outputCSVFolderName + '/CigUse_byEdu_byGen_%s.csv' % self.response)
             self.dfMAIN.to_csv(self.outputFile, encoding='utf-8',tupleize_cols=True)
             print('Dataframe written to CSV File : ' + self.outputFile)
 
@@ -126,7 +126,7 @@ class EducationAnalysis(YouthSmokingAnalysis): # inherit from the superclass
             self.dfMAIN = self.dfMAIN.fillna(self.dfMAIN[(self.dfMAIN.index == self.dfMAIN.index)].mean())
             
             # Write to CSV
-            self.outputFile = str('AnalysisCSV/%s_byEdu.csv' % self.measure_desc)
+            self.outputFile = str(YouthSmokingAnalysis.outputCSVFolderName + '/%s_byEdu.csv' % self.measure_desc)
             self.dfMAIN.to_csv(self.outputFile, encoding='utf-8')
             print('Dataframe written to CSV File : ' + self.outputFile)
 
@@ -156,7 +156,7 @@ class EducationAnalysis(YouthSmokingAnalysis): # inherit from the superclass
             self.dfMAIN = self.dfMAIN.fillna(self.dfMAIN[(self.dfMAIN.index == self.dfMAIN.index)].mean())
             
             # Write to CSV
-            self.outputFile = str('AnalysisCSV/%s_byEdu_byGen.csv' % self.measure_desc)
+            self.outputFile = str(YouthSmokingAnalysis.outputCSVFolderName + '/%s_byEdu_byGen.csv' % self.measure_desc)
             self.dfMAIN.to_csv(self.outputFile, encoding='utf-8',tupleize_cols=True)
             print('Dataframe written to CSV File : ' + self.outputFile)
 
@@ -204,7 +204,7 @@ class EducationAnalysis(YouthSmokingAnalysis): # inherit from the superclass
             self.dfMAIN = self.dfMAIN.fillna(self.dfMAIN[(self.dfMAIN.index == self.dfMAIN.index)].mean())
             
             # Write to CSV
-            self.outputFile = str('AnalysisCSV/SmokelessT_byEdu_%s.csv' % self.response)
+            self.outputFile = str(YouthSmokingAnalysis.outputCSVFolderName + '/SmokelessT_byEdu_%s.csv' % self.response)
             self.dfMAIN.to_csv(self.outputFile, encoding='utf-8')
             print('Dataframe written to CSV File : ' + self.outputFile)
 
@@ -234,63 +234,100 @@ class EducationAnalysis(YouthSmokingAnalysis): # inherit from the superclass
             self.dfMAIN = self.dfMAIN.fillna(self.dfMAIN[(self.dfMAIN.index == self.dfMAIN.index)].mean())
             
             # Write to CSV
-            self.outputFile = str('AnalysisCSV/SmokelessT_byEdu_byGen_%s.csv' % self.response)
+            self.outputFile = str(YouthSmokingAnalysis.outputCSVFolderName + '/SmokelessT_byEdu_byGen_%s.csv' % self.response)
             self.dfMAIN.to_csv(self.outputFile, encoding='utf-8',tupleize_cols=True)
             print('Dataframe written to CSV File : ' + self.outputFile)
 
             return self.dfMAIN
-    
-    def analyzeBeforeAndAfterCampaign(self):
+
+    ####
+    #### Plotting
+    ####
+
+
+    def draw_box(self, p, xmin='2012',xmax='2016', alpha = 0.15, color='k', hatch='/',ec='blue'):
+
+        return p.axvspan(xmin=xmin,xmax=xmax,alpha=alpha,color=color,hatch=hatch,ec=ec)
         
-        print("add codes here")
-        
-    def analyzeBeforeAndAfterTax(self):
-        
-        print("add codes here")
+    def draw_text(self, p,x=0.97,y=0.95,text='TIPS Campaign',horizontalalignment = 'right',verticalalignment = 'top',multialignment = 'right', fontsize=20, color='red',):
+
+        return p.text(x,y,
+               text,
+               horizontalalignment=horizontalalignment,
+               verticalalignment=verticalalignment,
+               multialignment=multialignment,
+               fontsize=fontsize,
+               color=color,
+               transform=p.transAxes)
+
+    def draw_in_subplots(self,p):
+
+        for category in p:
+                for sbplot in category:
+                    self.draw_box(sbplot)
+                    self.draw_text(sbplot,x=0.99,fontsize=12)
         
     def plotCigUse(self, response='Current', by_gender=False):
 
         self.response = response
         self.by_gender = by_gender
+        
 
         # Call on the analyze_Cig_Use function to return the df for plotting purposes
-        self.df = self.analyze(self.response,self.by_gender)
+        self.df = self.analyzeCigUse(self.response,self.by_gender)
         
         # Plot the data by education level only if by_gender is False
         if self.by_gender == False:
+
             
-            self.df.plot(figsize=(20,20),
-                                   style = '--o',
-                                   title = "Cigaratte Use (%s) by Education " % self.response,
+            p = self.df.plot(figsize=(20,20),
+                             style = '-o',
+                             title = "Cigaratte Use (%s) by Education " % self.response,
+                             x_compat=True,
+                             rot = 0
                                    )
 
-            self.plot_file = str('Plots/Cig_Use_by_Edu_%s.png' %self.response)
+            # Adds vertical box & text to indicate POST-Tips Campaign period.
+
+            self.draw_box(p)
+            self.draw_text(p)
+            
+            # Save to File
+
+            self.plot_file = str(YouthSmokingAnalysis.outputPlotFolderName + '/Cig_Use_by_Edu_%s.png' %self.response)
             plt.savefig(self.plot_file)
             print("Plot output to : " + self.plot_file)
             
-            return plt.show()
+            return p
 
         else:
-        # Plot the data by education level AND gender level if by_gender is not False
-            self.df.plot(subplots=True, 
-                         figsize=(20,20), 
-                         layout=(2,2), 
-                         sharey=True, 
-                         title = "Cigaratte Use (%s) by Education & Gender" % self.response,
+            # Plot the data by education level AND gender level if by_gender is not False
+
+            p = self.df.plot(subplots=True,
+                             figsize=(20,20),
+                             layout=(2,2),
+                             sharey=True,
+                             title = "Cigaratte Use (%s) by Education & Gender" % self.response,
+                             x_compat=True,
+                             rot=0
                          )
+            
+            # Bifurcate pre/post tips campaign by box and text for each subplot
+            self.draw_in_subplots(p)
 
             
-            self.plot_file = str('Plots/Cig_Use_by_Edu_by_Gender_%s.png' % self.response)
+            self.plot_file = str(YouthSmokingAnalysis.outputPlotFolderName + '/Cig_Use_by_Edu_by_Gender_%s.png' % self.response)
             plt.savefig(self.plot_file)
             print("Plot output to : " + self.plot_file)
             
-        return plt.show()
+        return p
     
     
     def plotCessation(self, measure_desc, by_gender=False):
 
         self.measure_desc = measure_desc
         self.by_gender = by_gender
+        
 
         # Call on the analyze_Cig_Use function to return the df for plotting purposes
         self.df = self.analyzeCessation(self.measure_desc,self.by_gender)
@@ -298,37 +335,53 @@ class EducationAnalysis(YouthSmokingAnalysis): # inherit from the superclass
         # Plot the data by education level only if by_gender is False
         if self.by_gender == False:
             
-            self.df.plot(figsize=(20,20),
-                                   style = '--o',
-                                   title = "%s by Education " % self.measure_desc,
-                                   )
+            p = self.df.plot(figsize=(20,20),
+                             style = '-o',
+                             title = "%s by Education " % self.measure_desc,
+                             x_compat=True,
+                             rot=0,
+                             )
 
-            self.plot_file = str('Plots/%s_by_Edu.png' % self.measure_desc)
+            # Adds vertical box & text to indicate POST-Tips Campaign period.
+
+            self.draw_box(p)
+            self.draw_text(p,y=0.99) # y position of text increased here as it was overlapping with a line
+            
+            # Save to File
+
+            self.plot_file = str(YouthSmokingAnalysis.outputPlotFolderName + '/%s_by_Edu.png' % self.measure_desc)
             plt.savefig(self.plot_file)
             print("Plot output to : " + self.plot_file)
             
-            return plt.show()
+            return p
 
         else:
         # Plot the data by education level AND gender level if by_gender is not False
-            self.df.plot(subplots=True, 
-                         figsize=(20,20), 
-                         layout=(2,2), 
-                         sharey=True, 
-                         title = "%s by Education & Gender" % self.measure_desc
+            p = self.df.plot(subplots=True,
+                             figsize=(20,20), 
+                             layout=(2,2), 
+                             sharey=True, 
+                             title = "%s by Education & Gender" % self.measure_desc,
+                             x_compat=True,
+                             rot=0,
                         )
 
-            self.plot_file = str('Plots/%s_by_Edu_Gen.png' % self.measure_desc)
+            # Bifurcate pre/post tips campaign by box and text for each subplot
+            self.draw_in_subplots(p)
+            
+            # Save to Disk
+            self.plot_file = str(YouthSmokingAnalysis.outputPlotFolderName + '/%s_by_Edu_Gen.png' % self.measure_desc)
             plt.savefig(self.plot_file)
             print("Plot output to : " + self.plot_file)
             
             
-        return plt.show()
+        return p
     
     def plotSmokelessTobacco(self, response='Current', by_gender=False):
 
         self.response = response
         self.by_gender = by_gender
+        
 
         # Call on the analyze_Cig_Use function to return the df for plotting purposes
         self.df = self.analyzeSmokelessTobacco(self.response,self.by_gender)
@@ -336,94 +389,102 @@ class EducationAnalysis(YouthSmokingAnalysis): # inherit from the superclass
         # Plot the data by education level only if by_gender is False
         if self.by_gender == False:
             
-            self.df.plot(figsize=(20,20),
-                                   style = '--o',
-                                   title = "Smokeless Tobacco Use (%s) by Education " % self.response,
-                                   )
+            p = self.df.plot(figsize=(20,20),
+                             style = '-o',
+                             title = "Smokeless Tobacco Use (%s) by Education " % self.response,
+                             x_compat=True,
+                             rot=0,
+                             )
 
-            self.plot_file = str('Plots/Smokeless_Tobacco_by_Edu_%s.png' % self.response)
+            # Adds vertical box & text to indicate POST-Tips Campaign period.
+
+            self.draw_box(p)
+            self.draw_text(p)
+            
+            # Save to File
+
+            self.plot_file = str(YouthSmokingAnalysis.outputPlotFolderName + '/Smokeless_Tobacco_by_Edu_%s.png' % self.response)
             plt.savefig(self.plot_file)
             print("Plot output to : " + self.plot_file)
             
-            return plt.show()
+            return p
 
         else:
             # Plot the data by education level AND gender level if by_gender is not False
-            
-            self.df.plot(subplots=True, 
-                         figsize=(20,20), 
-                         layout=(2,2), 
-                         sharey=True, 
-                         title = "Smokeless Tobacco Use (%s) by Education & Gender" % self.response,
+            p = self.df.plot(subplots=True,
+                             figsize=(20,20),
+                             layout=(2,2),
+                             sharey=True,
+                             title = "Smokeless Tobacco Use (%s) by Education & Gender" % self.response,
+                             x_compat=True,
+                             rot=0,
                          )
+
+            # Bifurcate pre/post tips campaign by box and text for each subplot
+            self.draw_in_subplots(p)
             
-            self.plot_file = str('Plots/Smokeless_Tobacco_by_Edu_by_Gender_%s.png' % self.response )
+            # Save to Disk
+            self.plot_file = str(YouthSmokingAnalysis.outputPlotFolderName + '/Smokeless_Tobacco_by_Edu_by_Gender_%s.png' % self.response)
             plt.savefig(self.plot_file)
             print("Plot output to : " + self.plot_file)
-            
-        return plt.show()
 
-
-Analysis = EducationAnalysis()
-### Write our analysis to CSVs. 
-### Also appends each df to 'dataframes' dictionary for further use in Python.
-
-response_values = ['Current', 'Ever', 'Frequent']
-gender_values = [True,False]
-cess_measures = ['Percent of Current Smokers Who Want to Quit', 'Quit Attempt in Past Year Among Current Cigarette Smokers']
-
-dataframes = {
-    'CigUse' : [],
-    'Cessation' : [],
-    'SmokelessT' : []
-}
-
-plots = {
-    'CigUse' : [],
-    'Cessation' : [],
-    'SmokelessT' : []
-}
-
-'''
-Need to put the code below in a main() function
-'''
-
-# Analyze Cig Use
-for resp in response_values:
-    for gend in gender_values: 
-        df = Analysis.analyze(response=resp,by_gender=gend)
-        dataframes['CigUse'].append(df)
-
-# Analyze Cessation
-for measure in cess_measures:
-    for gend in gender_values: 
-        df = Analysis.analyzeCessation(measure_desc=measure,by_gender=gend)
-        dataframes['Cessation'].append(df)
         
-# Analyze Smokeless Tobacco
-for resp in response_values:
-    for gend in gender_values: 
-        df = Analysis.analyzeSmokelessTobacco(response=resp,by_gender=gend)
-        dataframes['SmokelessT'].append(df)
-        
-        
-### Create Plots for our analysis and save them to disk.
-### Also appends plots to a dict for further use in Python
+        return p
 
-# Analyze Cig Use
-for resp in response_values:
-    for gend in gender_values: 
-        pl = Analysis.plotCigUse(response=resp,by_gender=gend)
-        plots['CigUse'].append(pl)
+    def analyze(self):
 
-# Analyze Cessation
-for measure in cess_measures:
-    for gend in gender_values: 
-        pl = Analysis.plotCessation(measure_desc=measure,by_gender=gend)
-        plots['Cessation'].append(pl)
+        ### Write our analysis to CSVs and save Plots as PNGs
+        ### Returns a list of dictionaries
+        ### Appends each df and plot to two dictionaries -> 'dataframes' & 'plots' for further use in Python.
+
         
-# Analyze Smokeless Tobacco
-for resp in response_values:
-    for gend in gender_values: 
-        pl = Analysis.plotSmokelessTobacco(response=resp,by_gender=gend)
-        plots['SmokelessT'].append(pl)
+        response_values = ['Current', 'Ever', 'Frequent']
+        gender_values = [True,False]
+        cess_measures = ['Percent of Current Smokers Who Want to Quit', 'Quit Attempt in Past Year Among Current Cigarette Smokers']
+
+        result = dict()
+        
+        result['dataframes'] = {
+            'CigUse' : [],
+            'Cessation' : [],
+            'SmokelessT' : []
+        }
+
+        result['plots'] = {
+            'CigUse' : [],
+            'Cessation' : [],
+            'SmokelessT' : []
+        }
+
+        # Analyze Cig Use
+        for resp in response_values:
+            for gend in gender_values: 
+                df = self.analyzeCigUse(response=resp,by_gender=gend)
+                result['dataframes']['CigUse'].append(df)
+
+                pl = self.plotCigUse(response=resp,by_gender=gend)
+                result['plots']['CigUse'].append(pl)
+
+        # Analyze Cessation
+        for measure in cess_measures:
+            for gend in gender_values: 
+                df = self.analyzeCessation(measure_desc=measure,by_gender=gend)
+                result['dataframes']['Cessation'].append(df)
+
+                pl = self.plotCessation(measure_desc=measure,by_gender=gend)
+                result['plots']['Cessation'].append(pl)
+                
+        # Analyze Smokeless Tobacco
+        for resp in response_values:
+            for gend in gender_values: 
+                df = self.analyzeSmokelessTobacco(response=resp,by_gender=gend)
+                result['dataframes']['SmokelessT'].append(df)
+
+                pl = self.plotSmokelessTobacco(response=resp,by_gender=gend)
+                result['plots']['SmokelessT'].append(pl)
+                
+        return result
+
+a = EducationAnalysis()
+results = a.analyze()
+#plt.show()
