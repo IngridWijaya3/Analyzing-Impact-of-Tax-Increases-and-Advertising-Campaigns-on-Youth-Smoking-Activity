@@ -25,10 +25,25 @@ class StateCampaignAnalysis(YouthSmokingAnalysis):
                                              & (self.ytsDataFrame.YEAR>2012)][['YEAR','LocationAbbr','MeasureDesc','Data_Value']].groupby(['LocationAbbr','MeasureDesc'], as_index=False)['Data_Value'].mean()
         self.stateAndCessation=self.stateAndCessation.sort_values(by=['LocationAbbr'], ascending=True)
         self.stateAndCessation=pandas.pivot_table(self.stateAndCessation, index=['LocationAbbr'], columns=['MeasureDesc'] , values='Data_Value')
+        self.stateAndCessation.rename(columns={"Percent of Current Smokers Who Want to Quit": "Percent of Current Smokers Who Want to Quit After Campaign",
+                                               "Quit Attempt in Past Year Among Current Cigarette Smokers":"Quit Attempt in Past Year Among Current Cigarette Smokers After Campaign"},inplace=True)
+        self.stateAndCessation.reset_index( inplace=True)
 
-        outputFilePath = str(YouthSmokingAnalysis.outputCSVFolderName+'/State and Cessation After Campaign.csv')
+        self.stateAndCessationBC=self.ytsDataFrame[(self.ytsDataFrame.Gender=='Overall')
+                                             & (self.ytsDataFrame.TopicDesc=='Cessation (Youth)')
+                                             & (self.ytsDataFrame.YEAR<=2012)][['YEAR','LocationAbbr','MeasureDesc','Data_Value']].groupby(['LocationAbbr','MeasureDesc'], as_index=False)['Data_Value'].mean()
+        self.stateAndCessationBC=self.stateAndCessationBC.sort_values(by=['LocationAbbr'], ascending=True)
+        self.stateAndCessationBC=pandas.pivot_table(self.stateAndCessationBC, index=['LocationAbbr'], columns=['MeasureDesc'] , values='Data_Value')
+        self.stateAndCessationBC.rename(columns={"Percent of Current Smokers Who Want to Quit": "Percent of Current Smokers Who Want to Quit Before Campaign",
+                                               "Quit Attempt in Past Year Among Current Cigarette Smokers":"Quit Attempt in Past Year Among Current Cigarette Smokers Before Campaign"},inplace=True)
         
-        self.stateAndCessation.to_csv(outputFilePath, encoding='utf-8')
+        self.stateAndCessationBC.reset_index( inplace=True)
+        self.stateAndCessationCombine=pandas.merge( self.stateAndCessationBC, self.stateAndCessation, left_on=['LocationAbbr'], right_on=['LocationAbbr'])
+        print(self.stateAndCessationBC)
+
+        outputFilePath = str(YouthSmokingAnalysis.outputCSVFolderName+'/State and Cessation Who Want to Quit VS Quit Attempt.csv')
+        
+        self.stateAndCessationCombine.to_csv(outputFilePath, encoding='utf-8')
 
         
     def analyzeCigaretteUse(self):
