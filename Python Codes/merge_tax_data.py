@@ -1,4 +1,8 @@
 import string
+"""
+this program merges the tax rate data into a single csv file for use in analyses
+author: Tony santos, group 4
+"""
 from os.path import join, dirname, abspath
 import xlrd
 
