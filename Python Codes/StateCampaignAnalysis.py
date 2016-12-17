@@ -14,24 +14,107 @@ class StateCampaignAnalysis(YouthSmokingAnalysis):
         self.analyzeCigaretteUse()
         self.analyzeCessation()
         self.analyzeBeforeAndAfterCampaign()
-        self.plotBeforeAndAfterCampaign()
+        self.plotBeforeAndAfterCampaign(self.stateCigaretteUseResult,"Cigarette Use")
+        self.plotBeforeAndAfterCampaign(self.stateSmokelessTobaccoUseResult,"Smokelese Tobacco")
+        self.plotBeforeAndAfterCampaign(self.stateCessationTobaccoUseResult,"Cessation")
+        self.plotCigaretteUseAfterCampaign()
         
     def analyzeCessation(self):
         self.stateAndCessation=self.ytsDataFrame[(self.ytsDataFrame.Gender=='Overall')
-                                             & (self.ytsDataFrame.TopicDesc=='Cessation (Youth)' )][['YEAR','LocationAbbr','MeasureDesc','Data_Value']].groupby(['YEAR','LocationAbbr','MeasureDesc'], as_index=False)['Data_Value'].mean()
-        self.stateAndCessation=self.stateAndCessation.sort_values(by=['YEAR','LocationAbbr'], ascending=False)
-        self.stateAndCessation=pandas.pivot_table(self.stateAndCessation, index=['YEAR','LocationAbbr'], columns=['MeasureDesc'] , values='Data_Value')
-       
+                                             & (self.ytsDataFrame.TopicDesc=='Cessation (Youth)')
+                                             & (self.ytsDataFrame.YEAR>2012)][['YEAR','LocationAbbr','MeasureDesc','Data_Value']].groupby(['LocationAbbr','MeasureDesc'], as_index=False)['Data_Value'].mean()
+        self.stateAndCessation=self.stateAndCessation.sort_values(by=['LocationAbbr'], ascending=True)
+        self.stateAndCessation=pandas.pivot_table(self.stateAndCessation, index=['LocationAbbr'], columns=['MeasureDesc'] , values='Data_Value')
+
+        outputFilePath = str(YouthSmokingAnalysis.outputCSVFolderName+'/State and Cessation After Campaign.csv')
+        
+        self.stateAndCessation.to_csv(outputFilePath, encoding='utf-8')
+
         
     def analyzeCigaretteUse(self):
         self.stateAndCigaretteUse=self.ytsDataFrame[(self.ytsDataFrame.Gender=='Overall')
-                                             & (self.ytsDataFrame.TopicDesc=='Cigarette Use (Youth)' )][['YEAR','LocationAbbr','MeasureDesc','Response','Data_Value']]
+                                             & (self.ytsDataFrame.TopicDesc=='Cigarette Use (Youth)')
+                                             & (self.ytsDataFrame.YEAR>2012)][['YEAR','LocationAbbr','MeasureDesc','Response','Data_Value']]
         self.stateAndCigaretteUse['CigaretteUseStatus'] = self.stateAndCigaretteUse[['MeasureDesc', 'Response']].apply(lambda x: ' '.join(x), axis=1)
         
-        self.stateAndCigaretteUse=self.stateAndCigaretteUse.groupby(['YEAR','LocationAbbr','CigaretteUseStatus'], as_index=False)['Data_Value'].mean()
-        self.stateAndCigaretteUse=self.stateAndCigaretteUse.sort_values(by=['YEAR','LocationAbbr'], ascending=False)
-        self.stateAndCigaretteUse=pandas.pivot_table(self.stateAndCigaretteUse, index=['YEAR','LocationAbbr'], columns=['CigaretteUseStatus'] , values='Data_Value')
+        self.stateAndCigaretteUse=self.stateAndCigaretteUse.groupby(['LocationAbbr','CigaretteUseStatus'], as_index=False)['Data_Value'].mean()
+        self.stateAndCigaretteUse=self.stateAndCigaretteUse.sort_values(by=['LocationAbbr'], ascending=True)
+        self.stateAndCigaretteUse=pandas.pivot_table(self.stateAndCigaretteUse, index=['LocationAbbr'], columns=['CigaretteUseStatus'] , values='Data_Value')
+        self.stateAndCigaretteUse.rename(columns={"Smoking Status Frequent": "Frequent After Campaign",
+                                                                "Smoking Status Current":"Current After Campaign",
+                                                                "Smoking Status Ever": "Ever After Campaign"},inplace=True)
+        self.stateAndCigaretteUse.reset_index( inplace=True)
+
+        self.stateAndCigaretteUseBC=self.ytsDataFrame[(self.ytsDataFrame.Gender=='Overall')
+                                             & (self.ytsDataFrame.TopicDesc=='Cigarette Use (Youth)')
+                                             & (self.ytsDataFrame.YEAR<=2012)][['YEAR','LocationAbbr','MeasureDesc','Response','Data_Value']]
+        self.stateAndCigaretteUseBC['CigaretteUseStatus'] = self.stateAndCigaretteUseBC[['MeasureDesc', 'Response']].apply(lambda x: ' '.join(x), axis=1)
+        
+        self.stateAndCigaretteUseBC=self.stateAndCigaretteUseBC.groupby(['LocationAbbr','CigaretteUseStatus'], as_index=False)['Data_Value'].mean()
+        self.stateAndCigaretteUseBC=self.stateAndCigaretteUseBC.sort_values(by=['LocationAbbr'], ascending=True)
+      
+        self.stateAndCigaretteUseBC=pandas.pivot_table(self.stateAndCigaretteUseBC, index=['LocationAbbr'], columns=['CigaretteUseStatus'] , values='Data_Value')
+        self.stateAndCigaretteUseBC.rename(columns={"Smoking Status Frequent": "Frequent Before Campaign",
+                                                                "Smoking Status Current":"Current Before Campaign",
+                                                                "Smoking Status Ever": "Ever Before Campaign"},inplace=True)
+        self.stateAndCigaretteUseBC.reset_index( inplace=True)
+ 
+        self.stateAndCigaretteUseResponseCombine=pandas.merge( self.stateAndCigaretteUseBC, self.stateAndCigaretteUse, left_on=['LocationAbbr'], right_on=['LocationAbbr'])
+        outputFilePath = str(YouthSmokingAnalysis.outputCSVFolderName+'/State and Cigarette Use Response Before and After Campaign.csv')
+ 
+        self.stateAndCigaretteUseResponseCombine.to_csv(outputFilePath, encoding='utf-8')
+
+    def plotCigaretteUseAfterCampaign(self):
+        
+        plt.style.use('fivethirtyeight')
+
+        n_groups = len(self.stateAndCigaretteUse.index)
+        
+        SmokingStatusFrequent = self.stateAndCigaretteUse["Frequent After Campaign"].values
+        SmokingStatusCurrent= self.stateAndCigaretteUse["Current After Campaign"].values
+        SmokingStatusEver= self.stateAndCigaretteUse["Ever After Campaign"].values
+           
+
+        fig, ax = plt.subplots()
+        fig.set_figheight(20)
+        fig.set_figwidth(50)
+        
+        index = numpy.arange(n_groups)
+        index = numpy.arange(0, n_groups * 2, 2)
+        bar_width = 0.35
+
+        opacity = 0.4
+        error_config = {'ecolor': '0.3'}
+
+        rects1 = plt.bar(index, SmokingStatusFrequent, bar_width,
+                     alpha=opacity,
+                     color='b',
+                     error_kw=error_config,
+                     label='Smoking Status Frequent')
+
+        rects2 = plt.bar(index + bar_width, SmokingStatusCurrent, bar_width,
+                     alpha=opacity,
+                     color='r',
+                     error_kw=error_config,
+                     label='Smoking Status Current')
+        
+        rects3 = plt.bar(index + bar_width+ bar_width, SmokingStatusEver, bar_width,
+                     alpha=opacity,
+                     color='y',
+                     error_kw=error_config,
+                     label='Smoking Status Ever')
+
+        plt.xlabel('States')
+        plt.ylabel('Percent Average')
+        plt.title('Percent Average Cigarette Use Response After Campaign')
+        plt.xticks(index + bar_width+ bar_width, self.stateAndCigaretteUse.LocationAbbr,fontsize=20)
        
+        plt.legend()
+
+        plt.savefig(YouthSmokingAnalysis.outputPlotFolderName+'/State and Cigarette Use Response Before And After Campaign.png')
+        
+
+    
     def analyzeBeforeAndAfterCampaign(self):
        
         self.stateAndCigaretteUseAfterCampaign=self.ytsDataFrame[(self.ytsDataFrame.Gender=='Overall')
@@ -78,31 +161,25 @@ class StateCampaignAnalysis(YouthSmokingAnalysis):
         self.stateCessationTobaccoUseResult["PercentIncrease"]=((self.stateCessationTobaccoUseResult.AverageAfterCampaign-self.stateCessationTobaccoUseResult.AverageBeforeCampaign)/self.stateCessationTobaccoUseResult.AverageBeforeCampaign)*100
         self.stateCessationTobaccoUseResult=self.stateCessationTobaccoUseResult.sort_values(by='PercentIncrease', ascending=False)
         
-        print(self.stateCigaretteUseResult)
-        print(self.stateSmokelessTobaccoUseResult)
-        print(self.stateCessationTobaccoUseResult)
+        outputFilePath = str(YouthSmokingAnalysis.outputCSVFolderName+'/State and Cigarette User Before and After Campaign.csv')
+        self.stateCigaretteUseResult.to_csv(outputFilePath, encoding='utf-8')
+        outputFilePath = str(YouthSmokingAnalysis.outputCSVFolderName+'/State and Smokeless Tobacco Before and After Campaign.csv')
+        self.stateSmokelessTobaccoUseResult.to_csv(outputFilePath, encoding='utf-8')
+        outputFilePath = str(YouthSmokingAnalysis.outputCSVFolderName+'/State and Cessation Before and After Campaign.csv')
+        self.stateCessationTobaccoUseResult.to_csv(outputFilePath, encoding='utf-8')
 
-    def plotBeforeAndAfterCampaign(self):
-        '''
-        self.stateCigaretteUseResult.plot(figsize=(20,20),
-                                   style = '--o',
-                                   title = "Cigarette Use by State ")
-                                   '''
+    def plotBeforeAndAfterCampaign(self,df,title):
 
         plt.style.use('fivethirtyeight')
 
-        #plt.draw_all()
+        n_groups = len(df.index)
 
-        #plt.savefig('test.png')
-
-        n_groups = len(self.stateCigaretteUseResult.index)
-
-        means_men = self.stateCigaretteUseResult["AverageBeforeCampaign"].values
-        means_women = self.stateCigaretteUseResult["AverageAfterCampaign"].values
+        averagePercentBeforeCampaign = df["AverageBeforeCampaign"].values
+        averagePercentAfterCampaign = df["AverageAfterCampaign"].values
 
         fig, ax = plt.subplots()
         fig.set_figheight(20)
-        fig.set_figwidth(30)
+        fig.set_figwidth(50)
         
         index = numpy.arange(n_groups)
         index = numpy.arange(0, n_groups * 2, 2)
@@ -111,13 +188,13 @@ class StateCampaignAnalysis(YouthSmokingAnalysis):
         opacity = 0.4
         error_config = {'ecolor': '0.3'}
 
-        rects1 = plt.bar(index, means_men, bar_width,
+        rects1 = plt.bar(index, averagePercentBeforeCampaign, bar_width,
                      alpha=opacity,
                      color='b',
                      error_kw=error_config,
                      label='Before Campaign')
 
-        rects2 = plt.bar(index + bar_width, means_women, bar_width,
+        rects2 = plt.bar(index + bar_width, averagePercentAfterCampaign, bar_width,
                      alpha=opacity,
                      color='r',
                      error_kw=error_config,
@@ -125,13 +202,13 @@ class StateCampaignAnalysis(YouthSmokingAnalysis):
 
         plt.xlabel('States')
         plt.ylabel('Percent Average')
-        plt.title('Percent Average Cigarette Use Before And After Campaign')
-        plt.xticks(index + bar_width, self.stateCigaretteUseResult.index,fontsize=10)
+        plt.title('Percent Average '+title+ ' Before And After Campaign')
+        plt.xticks(index + bar_width, df.index,fontsize=20)
        
         plt.legend()
 
         #plt.show()
-        plt.savefig('test.png')
+        plt.savefig(YouthSmokingAnalysis.outputPlotFolderName+'/State And '+title+' Before And After Campaign.png')
 
 a = StateCampaignAnalysis()
 a.analyze()
