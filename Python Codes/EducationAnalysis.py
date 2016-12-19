@@ -1,5 +1,4 @@
 ## YTS Analysis by Education level
-
 import pandas
 import numpy
 import matplotlib.pyplot as plt
@@ -13,6 +12,53 @@ class EducationAnalysis(YouthSmokingAnalysis): # inherit from the superclass
     def __init__(self):
         YouthSmokingAnalysis.__init__(self)
 
+    def analyze(self):
+        ### Returns a dictionary with the Pandas DFs and Matplitlib Plots
+        ### Appends each df and plot to two dictionaries -> 'dataframes' & 'plots' for further use in Python if required.
+        response_values = ['Current', 'Ever', 'Frequent']
+        gender_values = [True,False]
+        cess_measures = ['Percent of Current Smokers Who Want to Quit', 'Quit Attempt in Past Year Among Current Cigarette Smokers']
+
+        result = dict()
+        result['dataframes'] = {
+            'CigUse' : [],
+            'Cessation' : [],
+            'SmokelessT' : []
+        }
+        result['plots'] = {
+            'CigUse' : [],
+            'Cessation' : [],
+            'SmokelessT' : []
+        }
+
+        # Analyze Cig Use
+        for resp in response_values:
+            for gend in gender_values: 
+                df = self.analyzeCigUse(response=resp,by_gender=gend)
+                result['dataframes']['CigUse'].append(df)
+                pl = self.plotCigUse(response=resp,by_gender=gend)
+                result['plots']['CigUse'].append(pl)
+
+        # Analyze Cessation
+        for measure in cess_measures:
+            for gend in gender_values: 
+                df = self.analyzeCessation(measure_desc=measure,by_gender=gend)
+                result['dataframes']['Cessation'].append(df)
+                pl = self.plotCessation(measure_desc=measure,by_gender=gend)
+                result['plots']['Cessation'].append(pl)
+                
+        # Analyze Smokeless Tobacco
+        for resp in response_values:
+            for gend in gender_values: 
+                df = self.analyzeSmokelessTobacco(response=resp,by_gender=gend)
+                result['dataframes']['SmokelessT'].append(df)
+                pl = self.plotSmokelessTobacco(response=resp,by_gender=gend)
+                result['plots']['SmokelessT'].append(pl)
+                
+        return result
+
+
+
     def analyzeCigUse(self, response='Current', by_gender=False):
         
         ### 
@@ -23,7 +69,7 @@ class EducationAnalysis(YouthSmokingAnalysis): # inherit from the superclass
         ### 
         ### response = 'Current' or 'Frequent' or 'Ever'  (Default = 'Current')
         ### by_gender = True ------------> returns data by education level AND gender (Default = False)
-        ###             False -----------> returns data by education level only
+        ###                     False -----------> returns data by education level only
         ###
         
         self.response = response
@@ -245,11 +291,27 @@ class EducationAnalysis(YouthSmokingAnalysis): # inherit from the superclass
     ####
 
 
-    def draw_box(self, p, xmin='2012',xmax='2016', alpha = 0.15, color='k', hatch='/',ec='blue'):
+    def draw_box(self,
+                         p,
+                         xmin='2012',
+                         xmax='2016',
+                         alpha = 0.15,
+                         color='k',
+                         hatch='/',
+                         ec='blue'):
 
         return p.axvspan(xmin=xmin,xmax=xmax,alpha=alpha,color=color,hatch=hatch,ec=ec)
         
-    def draw_text(self, p,x=0.97,y=0.95,text='TIPS Campaign',horizontalalignment = 'right',verticalalignment = 'top',multialignment = 'right', fontsize=20, color='red',):
+    def draw_text(self,
+                          p,
+                          x=0.97,
+                          y=0.95,
+                          text='TIPS Campaign',
+                          horizontalalignment = 'right',
+                          verticalalignment = 'top',
+                          multialignment = 'right',
+                          fontsize=20,
+                          color='red',):
 
         return p.text(x,y,
                text,
@@ -431,59 +493,6 @@ class EducationAnalysis(YouthSmokingAnalysis): # inherit from the superclass
         
         return p
 
-    def analyze(self):
-
-        ### Write our analysis to CSVs and save Plots as PNGs
-        ### Returns a list of dictionaries
-        ### Appends each df and plot to two dictionaries -> 'dataframes' & 'plots' for further use in Python.
-
-        
-        response_values = ['Current', 'Ever', 'Frequent']
-        gender_values = [True,False]
-        cess_measures = ['Percent of Current Smokers Who Want to Quit', 'Quit Attempt in Past Year Among Current Cigarette Smokers']
-
-        result = dict()
-        
-        result['dataframes'] = {
-            'CigUse' : [],
-            'Cessation' : [],
-            'SmokelessT' : []
-        }
-
-        result['plots'] = {
-            'CigUse' : [],
-            'Cessation' : [],
-            'SmokelessT' : []
-        }
-
-        # Analyze Cig Use
-        for resp in response_values:
-            for gend in gender_values: 
-                df = self.analyzeCigUse(response=resp,by_gender=gend)
-                result['dataframes']['CigUse'].append(df)
-
-                pl = self.plotCigUse(response=resp,by_gender=gend)
-                result['plots']['CigUse'].append(pl)
-
-        # Analyze Cessation
-        for measure in cess_measures:
-            for gend in gender_values: 
-                df = self.analyzeCessation(measure_desc=measure,by_gender=gend)
-                result['dataframes']['Cessation'].append(df)
-
-                pl = self.plotCessation(measure_desc=measure,by_gender=gend)
-                result['plots']['Cessation'].append(pl)
-                
-        # Analyze Smokeless Tobacco
-        for resp in response_values:
-            for gend in gender_values: 
-                df = self.analyzeSmokelessTobacco(response=resp,by_gender=gend)
-                result['dataframes']['SmokelessT'].append(df)
-
-                pl = self.plotSmokelessTobacco(response=resp,by_gender=gend)
-                result['plots']['SmokelessT'].append(pl)
-                
-        return result
 
 #a = EducationAnalysis()
 #results = a.analyze()
