@@ -20,7 +20,7 @@ class YouthSmokingAnalysis:
         pass
     def analyzeCessation(self):
         pass
-    def analyzeNonCessation(self):
+    def analyzeCigaretteUse(self):
         pass
     def analyzeBeforeAndAfterCampaign(self):
         pass
