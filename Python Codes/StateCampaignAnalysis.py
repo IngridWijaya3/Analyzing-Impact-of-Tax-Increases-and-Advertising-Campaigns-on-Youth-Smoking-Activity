@@ -11,15 +11,19 @@ class StateCampaignAnalysis(YouthSmokingAnalysis):
         YouthSmokingAnalysis.__init__(self)
         
     def analyze(self):
+        print("\nBegin State vs Campaign Analysis")
         self.analyzeCigaretteUse()
         self.analyzeCessation()
         self.analyzeBeforeAndAfterCampaign()
         self.plotBeforeAndAfterCampaign(self.stateCigaretteUseResult,"Cigarette Use")
         self.plotBeforeAndAfterCampaign(self.stateSmokelessTobaccoUseResult,"Smokelese Tobacco")
         self.plotBeforeAndAfterCampaign(self.stateCessationTobaccoUseResult,"Cessation")
+        self.plotAnalyzeCessationAfterCampaign()
         self.plotCigaretteUseAfterCampaign()
+        print("\nEnd State vs Campaign Analysis")
         
     def analyzeCessation(self):
+        print("\nAnalyze Cessation Who Want to Quit VS Quit Attempt for each state.")
         self.stateAndCessation=self.ytsDataFrame[(self.ytsDataFrame.Gender=='Overall')
                                              & (self.ytsDataFrame.TopicDesc=='Cessation (Youth)')
                                              & (self.ytsDataFrame.YEAR>2012)][['YEAR','LocationAbbr','MeasureDesc','Data_Value']].groupby(['LocationAbbr','MeasureDesc'], as_index=False)['Data_Value'].mean()
@@ -39,14 +43,58 @@ class StateCampaignAnalysis(YouthSmokingAnalysis):
         
         self.stateAndCessationBC.reset_index( inplace=True)
         self.stateAndCessationCombine=pandas.merge( self.stateAndCessationBC, self.stateAndCessation, left_on=['LocationAbbr'], right_on=['LocationAbbr'])
-        print(self.stateAndCessationBC)
 
         outputFilePath = str(YouthSmokingAnalysis.outputCSVFolderName+'/State and Cessation Who Want to Quit VS Quit Attempt.csv')
         
         self.stateAndCessationCombine.to_csv(outputFilePath, encoding='utf-8')
+        print("\nAnalyze Cessation Who Want to Quit VS Quit Attempt for each state output file has been stored in ."+outputFilePath+" directory")
 
+    def plotAnalyzeCessationAfterCampaign(self):
+        print("\nPlot Cessation Who Want to Quit VS Quit Attempt for each state after campaign.")
+        plt.style.use('fivethirtyeight')
+
+        n_groups = len(self.stateAndCessation.index)
+        
+        whoWantToQuitDF = self.stateAndCessation["Percent of Current Smokers Who Want to Quit After Campaign"].values
+        quitAttemptCurrentDF= self.stateAndCessation["Quit Attempt in Past Year Among Current Cigarette Smokers After Campaign"].values
+           
+
+        fig, ax = plt.subplots()
+        fig.set_figheight(20)
+        fig.set_figwidth(50)
+        
+        index = numpy.arange(n_groups)
+        index = numpy.arange(0, n_groups * 2, 2)
+        bar_width = 0.35
+
+        opacity = 0.4
+        error_config = {'ecolor': '0.3'}
+
+        rects1 = plt.bar(index, whoWantToQuitDF, bar_width,
+                     alpha=opacity,
+                     color='b',
+                     error_kw=error_config,
+                     label='Percent of Current Smokers Who Want to Quit')
+
+        rects2 = plt.bar(index + bar_width, quitAttemptCurrentDF, bar_width,
+                     alpha=opacity,
+                     color='r',
+                     error_kw=error_config,
+                     label='Quit Attempt in Past Year Among Current Cigarette Smokers')
+        
+
+        plt.xlabel('States')
+        plt.ylabel('Percent Average')
+        plt.title('Percent Average Cessation After Campaign')
+        plt.xticks(index + bar_width+ bar_width, self.stateAndCessation.LocationAbbr,fontsize=20)
+       
+        plt.legend()
+        plotFilePath=YouthSmokingAnalysis.outputPlotFolderName+'/State Who Want to Quit VS Quit Attempt.png'
+        plt.savefig(plotFilePath)
+        print("\nPlot Cessation Who Want to Quit VS Quit Attempt for each state after campaign has been stored in ."+plotFilePath+" directory")
         
     def analyzeCigaretteUse(self):
+        print("\nAnalyze Cigarette Use (Frequent, Current, Ever) for each state.")
         self.stateAndCigaretteUse=self.ytsDataFrame[(self.ytsDataFrame.Gender=='Overall')
                                              & (self.ytsDataFrame.TopicDesc=='Cigarette Use (Youth)')
                                              & (self.ytsDataFrame.YEAR>2012)][['YEAR','LocationAbbr','MeasureDesc','Response','Data_Value']]
@@ -75,12 +123,13 @@ class StateCampaignAnalysis(YouthSmokingAnalysis):
         self.stateAndCigaretteUseBC.reset_index( inplace=True)
  
         self.stateAndCigaretteUseResponseCombine=pandas.merge( self.stateAndCigaretteUseBC, self.stateAndCigaretteUse, left_on=['LocationAbbr'], right_on=['LocationAbbr'])
-        outputFilePath = str(YouthSmokingAnalysis.outputCSVFolderName+'/State and Cigarette Use Response Before and After Campaign.csv')
+        outputFilePath = str(YouthSmokingAnalysis.outputCSVFolderName+'/State and Cigarette Use Response.csv')
  
         self.stateAndCigaretteUseResponseCombine.to_csv(outputFilePath, encoding='utf-8')
+        print("\nAnalyze Cigarette Use (Frequent, Current, Ever) for each state output file has been stored in ."+outputFilePath+" directory")
 
     def plotCigaretteUseAfterCampaign(self):
-        
+        print("\nPlot Cigarette Use (Frequent, Current, Ever) AfterCampaign each state after campaign.")
         plt.style.use('fivethirtyeight')
 
         n_groups = len(self.stateAndCigaretteUse.index)
@@ -125,13 +174,15 @@ class StateCampaignAnalysis(YouthSmokingAnalysis):
         plt.xticks(index + bar_width+ bar_width, self.stateAndCigaretteUse.LocationAbbr,fontsize=20)
        
         plt.legend()
-
-        plt.savefig(YouthSmokingAnalysis.outputPlotFolderName+'/State and Cigarette Use Response Before And After Campaign.png')
+        plotfilepath=YouthSmokingAnalysis.outputPlotFolderName+'/State and Cigarette Use Response.png'
+        plt.savefig(YouthSmokingAnalysis.outputPlotFolderName+'/State and Cigarette Use Response.png')
+        
+        print("\nPlot Cigarette Use (Frequent, Current, Ever) AfterCampaign each state after campaign has been stored in ."+plotfilepath+" directory")
         
 
     
     def analyzeBeforeAndAfterCampaign(self):
-       
+        print("\nAnalyze Cigarette Use , Smokeless Tobacco Use and Cessation for each state before and after campaign.")
         self.stateAndCigaretteUseAfterCampaign=self.ytsDataFrame[(self.ytsDataFrame.Gender=='Overall')
                                              & (self.ytsDataFrame.TopicDesc=='Cigarette Use (Youth)' )
                                              & (self.ytsDataFrame.MeasureDesc=='Smoking Status')
@@ -164,11 +215,13 @@ class StateCampaignAnalysis(YouthSmokingAnalysis):
         
         self.stateAndCessationBeforeCampaign=self.ytsDataFrame[(self.ytsDataFrame.Gender=='Overall')
                                              & (self.ytsDataFrame.TopicDesc=='Cessation (Youth)' )
+                                             & (self.ytsDataFrame.MeasureDesc =='Quit Attempt in Past Year Among Current Cigarette Smokers' )
                                              & (self.ytsDataFrame.YEAR<=2012)][['YEAR','LocationAbbr','Data_Value']]
         self.stateAndCessationBeforeCampaign=self.stateAndCessationBeforeCampaign.rename(columns={"Data_Value": "AverageBeforeCampaign"}).groupby(['LocationAbbr'])['AverageBeforeCampaign'].mean()
 
         self.stateAndCessationAfterCampaign=self.ytsDataFrame[(self.ytsDataFrame.Gender=='Overall')
                                              & (self.ytsDataFrame.TopicDesc=='Cessation (Youth)' )
+                                             & (self.ytsDataFrame.MeasureDesc =='Quit Attempt in Past Year Among Current Cigarette Smokers' )
                                              & (self.ytsDataFrame.YEAR>2012)][['YEAR','LocationAbbr','Data_Value']]
         self.stateAndCessationAfterCampaign=self.stateAndCessationAfterCampaign.rename(columns={"Data_Value": "AverageAfterCampaign"}).groupby(['LocationAbbr'])['AverageAfterCampaign'].mean()
 
@@ -180,11 +233,13 @@ class StateCampaignAnalysis(YouthSmokingAnalysis):
         self.stateCigaretteUseResult.to_csv(outputFilePath, encoding='utf-8')
         outputFilePath = str(YouthSmokingAnalysis.outputCSVFolderName+'/State and Smokeless Tobacco Before and After Campaign.csv')
         self.stateSmokelessTobaccoUseResult.to_csv(outputFilePath, encoding='utf-8')
-        outputFilePath = str(YouthSmokingAnalysis.outputCSVFolderName+'/State and Cessation Before and After Campaign.csv')
+        outputFilePath = str(YouthSmokingAnalysis.outputCSVFolderName+'/State and Quit Attempt Before and After Campaign.csv')
         self.stateCessationTobaccoUseResult.to_csv(outputFilePath, encoding='utf-8')
+        
+        print("\nAnalyze Cigarette Use , Smokeless Tobacco Use and Cessation for each state before and after campaign output file has been stored in ."+YouthSmokingAnalysis.outputCSVFolderName+" directory")
 
     def plotBeforeAndAfterCampaign(self,df,title):
-
+        print("\nPlot Cigarette Use , Smokeless Tobacco Use and Cessation for each state before and after campaign.")
         plt.style.use('fivethirtyeight')
 
         n_groups = len(df.index)
@@ -224,9 +279,10 @@ class StateCampaignAnalysis(YouthSmokingAnalysis):
 
         #plt.show()
         plt.savefig(YouthSmokingAnalysis.outputPlotFolderName+'/State And '+title+' Before And After Campaign.png')
+        print("\nPlot Cigarette Use , Smokeless Tobacco Use and Cessation for each state before and after campaign has been stored in ."+YouthSmokingAnalysis.outputPlotFolderName+" directory")
+        
 
-a = StateCampaignAnalysis()
-a.analyze()
+
 
         
 

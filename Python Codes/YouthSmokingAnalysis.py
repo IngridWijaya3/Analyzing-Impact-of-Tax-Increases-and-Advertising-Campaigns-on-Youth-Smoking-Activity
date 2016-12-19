@@ -59,6 +59,5 @@ class YouthSmokingAnalysis:
         
         print("Output file is %s" %output_file)
 
-a=YouthSmokingAnalysis()
 
 
