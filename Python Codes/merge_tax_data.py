@@ -4,6 +4,7 @@ this program merges the tax rate data into a single csv file for use in analyses
 author: Tony santos, group 4
 """
 from os.path import join, dirname, abspath
+import os
 import xlrd
 
 
@@ -35,10 +36,7 @@ def clean_state(state):
     reformatted_state = state
     # 1st, remove any footnotes from end of entry
     if '(' in state:
-        print("found a footnote")
         reformatted_state = state[:state.index('(', 0)].strip()  # remove any trailing spaces remaining after parens deleted
-        print('before: {},   after: {}'.format(state, reformatted_state))
-        # print('before: {},   after: {}'.format(state, state[:state.index('(', 0)]))
 
     # replace abbreviations
     if reformatted_state == 'D.C.':
@@ -55,7 +53,8 @@ def clean_state(state):
     return reformatted_state
 
 
-dirpath = "C:\\Python for Data Science\\FinalProject"
+dirpath = os.getcwd()
+# dirpath = "C:\\Python for Data Science\\FinalProject"
 file_name = "State Sales, Gasoline, Cigarette and Alcohol Taxes, 2000-2014.xlsx"
 fname = join(dirpath, file_name)
 tax_data = []
@@ -71,7 +70,6 @@ for sheet_name in sheet_names:
     xl_sheet = xl_workbook.sheet_by_name(sheet_name)
     year = xl_sheet.name
 
-    print ('Sheet name: %s' % xl_sheet.name)
     """
     skip rows until "cigarette tax" is found in column 3 (D)
     after finding "cigarette tax", check for merged cells to determine 1st data row
@@ -92,8 +90,6 @@ for sheet_name in sheet_names:
     if row_index >= xl_sheet.utter_max_rows:
         print("ERROR: cigarette tax data not found")
         exit(11)
-    # print('header row: {}'.format(header_row_index))
-    # print('data starts in row {}'.format(data_start_row))
     # read in state name and cigarette tax rate for 50 state and Ditrict of Columbia (D.C.)
     # when you get to Wyoming, if next row had district of columbia or D.C., ad it to list, otherwise, it is the
     #  end of data rows
@@ -103,27 +99,15 @@ for sheet_name in sheet_names:
         year = xl_sheet.name
         state = xl_sheet.cell(row_index, 0).value.strip()
         state = clean_state(state)
-        # if '(' in state:
-        #     print("found a footnote")
-        #     print('before: {},   after: {}'.format(state, state[:state.index('(', 0)]))
-        #     state = state[:state.index('(', 0)].strip() # remove any trailing spaces remaining after parens deleted
-        #
-        #
-        # if state == 'D.C.':
-        #     state = 'District of Columbia'
-        #
         tax_rate = str(xl_sheet.cell(row_index, 3).value)
 
         tax_rate = ''.join(
             [str(ch) for ch in tax_rate if ch in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.']])
         if year in ['2000', '2001', '2002', '2003', '2004']:
-            # tax_rate = float(tax_rate.replace('c', ''))
             tax_rate = round(float(tax_rate), 2)
-            # tax_rate = [ch in tax_rate if ch in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.']]
         else:   #taxes in dollars
             tax_rate = round(float(tax_rate) * 100, 4)
 
-        # print('{}, {}, {}'.format(year, state, tax_rate))
         tax_data.append((year, state, tax_rate))
 
 with open("tax_data_all.csv", "w") as fo:
