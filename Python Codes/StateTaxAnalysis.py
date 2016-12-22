@@ -340,7 +340,7 @@ class StateAnalysis(YouthSmokingAnalysis):
 
         plt.draw_all()
 
-        savepath = YouthSmokingAnalysis.outputPlotFolderName + "\\" + filename
+        savepath = YouthSmokingAnalysis.outputPlotFolderName + "/" + filename
         plt.savefig(savepath)
 
     def calc_before_after_averages(self, df, state, year):
@@ -396,7 +396,7 @@ class StateAnalysis(YouthSmokingAnalysis):
         plt.legend([set1['desc'], set2['desc']], loc=legend_loc)
 
         plt.draw_all()
-        savepath = YouthSmokingAnalysis.outputPlotFolderName + "\\" + filename
+        savepath = YouthSmokingAnalysis.outputPlotFolderName + "/" + filename
         plt.savefig(savepath)
         plt.clf()
 
